@@ -19,9 +19,9 @@ class User(AbstractUser):
         ordering = ["-id"]
 
 
-class ForeignCode(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lol')
-    foreign_code = models.ForeignKey(User, on_delete=models.CASCADE, related_name='kek')
+class InputInviteCode(models.Model):
+    my_code = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_code')
+    foreign_code = models.ForeignKey(User, on_delete=models.CASCADE, related_name='foreign_code')
 
     class Meta:
-        unique_together = ("user", "foreign_code")
+        unique_together = ("my_code", "foreign_code")

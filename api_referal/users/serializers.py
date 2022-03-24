@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import ForeignCode
+from .models import InputInviteCode
 from rest_framework.validators import UniqueTogetherValidator
 
 
@@ -34,30 +34,22 @@ class ShowUserSerializer(serializers.ModelSerializer):
         )
 
     def get_users(self, obj):
-        foreign_users = ForeignCode.objects.filter(foreign_code=obj)
+        foreign_users = InputInviteCode.objects.filter(foreign_code=obj)
         foreign_code_phone = []
-        for users in foreign_users:
-            foreign_code_phone.append(users.user.phone_number)
+        for t in foreign_users:
+            foreign_code_phone.append(t.my_code.phone_number)
         return foreign_code_phone
 
     def get_input_invite_code(self, obj):
-        return ForeignCode.objects.get(user=obj).foreign_code.invite_code
+        user = InputInviteCode.objects.filter(my_code=obj)
+        input_code = ''
+        for i in user:
+            input_code += i.foreign_code.invite_code
+        return input_code
 
 
 class ForeignCodeSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
-    )
-    foreign_code = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
-    )
 
     class Meta:
-        model = ForeignCode
-        fields = ("user", "foreign_code")
-        validators = [
-            UniqueTogetherValidator(
-                queryset=ForeignCode.objects.all(),
-                fields=["user", "foreign_code"],
-            )
-        ]
+        model = InputInviteCode
+        fields = ("my_code", "foreign_code")

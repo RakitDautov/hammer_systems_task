@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from rest_framework import serializers, status, viewsets
+from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 import time
@@ -11,7 +11,7 @@ import string
 import random
 
 from .serializers import UserSerializer, ForeignCodeSerializer, ShowUserSerializer
-from .models import ForeignCode
+from .models import InputInviteCode
 
 
 User = get_user_model()
@@ -88,8 +88,8 @@ def me(request):
 @api_view(['post'])
 @permission_classes([IsAuthenticated])
 def post_invite_code(request):
-    user = get_object_or_404(User, phone_number=request.data.get('phone_number'))
-    if ForeignCode.objects.filter(user=user):
+    user = request.user
+    if InputInviteCode.objects.filter(my_code=user):
         return Response(
             'У вас уже есть активный инвайт код',
             status=status.HTTP_400_BAD_REQUEST
@@ -105,7 +105,7 @@ def post_invite_code(request):
         invite_code=invite_code
     )
     data = {
-        "user": user.id,
+        "my_code": user.id,
         "foreign_code": foreign_code.id
     }
     serializer = ForeignCodeSerializer(data=data)
