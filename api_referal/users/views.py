@@ -86,7 +86,7 @@ def me(request):
 
 
 @api_view(['post'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def post_invite_code(request):
     user = get_object_or_404(User, phone_number=request.data.get('phone_number'))
     if ForeignCode.objects.filter(user=user):
